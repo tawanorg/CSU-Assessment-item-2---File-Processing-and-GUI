@@ -7,7 +7,7 @@ public class BookBinary {
     /**
      * List of books
      */
-    public ArrayList<Book> Books = new ArrayList<Book>();
+    private ArrayList<Book> books = new ArrayList<Book>();
 
     /**
      * Binary path file
@@ -20,28 +20,6 @@ public class BookBinary {
      */
     public BookBinary(String inputFile) {
         this.inputFile = inputFile;
-    }
-
-    /**
-     *
-     * @throws Exception
-     */
-    public void streamBooks() throws Exception {
-        // create buffer stream
-        DataInputStream dataInputStream = openInputStream(this.inputFile);
-
-        boolean isEOF = false;
-        while (!isEOF) {
-            Book book = readDataInputStream(dataInputStream);
-            if (book == null) {
-                isEOF = true;
-            } else {
-                Books.add(book);
-            }
-        }
-
-        // close stream
-        dataInputStream.close();
     }
 
     /**
@@ -65,34 +43,26 @@ public class BookBinary {
      * @return Books
      */
     public ArrayList<Book> getBooks() throws Exception {
-        streamBooks();
-        return Books;
-    }
+        // create buffer stream
+        DataInputStream dataInputStream = openInputStream(this.inputFile);
 
+        boolean isEOF = false;
 
-    /**
-     * Read data from input stream
-     * @param dataInputStream DataInputStream
-     * @return Book
-     */
-    private static Book readDataInputStream(DataInputStream dataInputStream) {
-        String title = null;
-        String author = null;
-        int year = 0;
-        int ISBN = 0;
-
-        try {
-            title = dataInputStream.readUTF();
-            author = dataInputStream.readUTF();
-            year = dataInputStream.readInt();
-            ISBN = dataInputStream.readInt();
-        } catch (EOFException e) {
-            return null;
-        } catch (IOException e) {
-            System.exit(0);
+        while (!isEOF) {
+            try {
+                String title = dataInputStream.readUTF();
+                String author = dataInputStream.readUTF();
+                int year = dataInputStream.readInt();
+                int ISBN = dataInputStream.readInt();
+                books.add(new Book(title, author, year, ISBN));
+            } catch (EOFException e) {
+                isEOF = true;
+            }
         }
 
-        return new Book(title, author, year, ISBN);
+        // close stream
+        dataInputStream.close();
+        return books;
     }
 
     /**

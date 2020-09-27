@@ -1,6 +1,8 @@
 package com.tawan;
 
+import java.rmi.server.ExportException;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -90,15 +92,79 @@ public class HomeLibrary {
     /**
      * Delete a book
      */
-    private void deleteBook() {
-        System.out.println("deleteBook");
+    private Book manageBook() throws Exception {
+        Scanner scanner = new Scanner(System.in);
+        boolean startProgram = true;
+
+        ArrayList<Book> books = this.bookBinary.getBooks();
+
+        BookCollection bookCollection = new BookCollection(books);
+
+
+        System.out.println("Search a book for deletion by\n");
+        System.out.println("" +
+                "1. Title\n" +
+                "2. Author\n" +
+                "3. Year of Publication\n" +
+                "4. ISBN number");
+
+        System.out.println("Please enter menu above:");
+        int menuOption = scanner.nextInt();
+
+        Book selectedBook = null;
+
+        while (startProgram) {
+            Scanner dataInput = new Scanner(System.in);
+            selectedBook = null;
+
+            switch (menuOption) {
+                case 1 -> {
+                    System.out.println("Please enter book title:");
+                    String bookTitle = dataInput.nextLine();
+                    selectedBook = bookCollection.findByTitle(bookTitle);
+                }
+                case 2 -> {
+                    System.out.println("Please enter book author:");
+                    String bookAuthor = dataInput.nextLine();
+                    selectedBook = bookCollection.findByAuthor(bookAuthor);
+                }
+                case 3 -> {
+                    System.out.println("Please enter year of publication:");
+                    int bookYear = dataInput.nextInt();
+                    selectedBook = bookCollection.findByYearOfPublication(bookYear);
+                }
+                case 4 -> {
+                    System.out.println("Please enter ISBN:");
+                    int ISBN = dataInput.nextInt();
+                    selectedBook = bookCollection.findByISBN(ISBN);
+                }
+            }
+
+            startProgram = false;
+        }
+
+        return selectedBook;
     }
 
     /**
      * Search a book
      */
-    private void searchBook() {
-        System.out.println("searchBook");
+    private void searchBook() throws Exception {
+        Book book = this.manageBook();
+        if (book != null) {
+            System.out.println("Search result found!");
+            System.out.println(book);
+        }
+    }
+
+    /**
+     * Search a book
+     */
+    private void deleteBook() throws Exception {
+        Book book = this.manageBook();
+        if (book != null) {
+            System.out.println("The book " + book.title + " has been deleted!");
+        }
     }
 
     /**
@@ -115,8 +181,6 @@ public class HomeLibrary {
         for (Book book : books) {
             System.out.println(book);
         }
-
         System.out.println("##  ------  ##");
-
     }
 }
